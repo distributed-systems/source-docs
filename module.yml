@@ -1,17 +1,17 @@
-name: javacript-sce-docs
+name: source-docs
 organization: distributed-systems
 version: 1.0.0
 elevator-pitch: Analyzes ecma-script code and returns it as structured data
 engine:
     node: 10.0.0+
 commands:
-    test: node --no-warnings --experimental-modules ./es-modules/distributed-systems/section-tests/x/bin/run.mjs ./test/*.mjs
+    test: node --inspect --no-warnings --experimental-modules ./es-modules/distributed-systems/section-tests/x/bin/run.mjs ./test/*.mjs
 npm-convert:
     source:
         - ./src
     destination: ./npm
     mapping:
-        distributed-systems/stack-trace: @distributed-systems/tack-trace
+        distributed-systems/stack-trace: @distributed-systems/stack-trace
 dev-link:
     - types
     - section-tests

@@ -5,7 +5,6 @@ import log from 'ee-log';
 
 
 
-
 export default class ClassAnalyzer extends BaseAnalyzer {
 
 
@@ -27,14 +26,17 @@ export default class ClassAnalyzer extends BaseAnalyzer {
 
 
 
+
     async analyze(ast) {
         this.documentation.line = ast.loc.start.line;
         this.documentation.column = ast.loc.start.column;
 
-
+        // the name of the class is availbe on the current node for
+        // declarations, but on the parent for expressions
         if (ast.id) this.documentation.name = ast.id.name;
         else if (ast.getParent().id) this.documentation.name = ast.getParent().id.name;
 
+        
         if (ast.superClass && ast.superClass.name) this.documentation.superClass = ast.superClass.name;
 
 
@@ -42,7 +44,7 @@ export default class ClassAnalyzer extends BaseAnalyzer {
             ast.comments.forEach((comment) => {
                 this.documentation.hasComment = true;
                 if (comment.data.description) this.documentation.description = comment.data.description;
-                if (comment.data.tags && comment.data.tags.some(t => t.title === 'private')) this.documentation.private = true;
+                if (comment.data.tags && comment.data.tags.some(t => t.title === 'private')) this.documentation.isPrivate = true;
             });
         }
 

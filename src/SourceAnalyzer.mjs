@@ -53,6 +53,6 @@ export default class SourceAnalyzer extends BaseAnalyzer {
             exclude: this.exclude,
         });
 
-        return analyzer.analyze(files);
+        //return analyzer.analyze(files);
     }
 }

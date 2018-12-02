@@ -5,7 +5,7 @@ import path from 'path';
 import log from 'ee-log';
 
 
-section('BaseAnalyzer', (section) => {
+section('Base Analyzer', (section) => {
     section.test('Instantiate Class', async () => {
         new BaseAnalyzer();
     });
@@ -90,7 +90,7 @@ section('BaseAnalyzer', (section) => {
         const source = await analyzer.loadSource(path.join(currentDir, 'data/Module.mjs'));
         const ast = await analyzer.parseSource(source, true);
         const nodes = analyzer.findAllNodes(ast, 'ImportSpecifier');
-        
+
         assert(nodes);
         assert.equal(nodes.length, 1);
     });

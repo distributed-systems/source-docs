@@ -6,7 +6,7 @@ import path from 'path';
 import log from 'ee-log';
 
 
-section('FileAnalyzer', (section) => {
+section('File Analyzer', (section) => {
     section.test('Instantiate Class', async () => {
         new FileAnalyzer();
     });

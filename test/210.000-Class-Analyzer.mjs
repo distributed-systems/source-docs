@@ -6,7 +6,7 @@ import path from 'path';
 import log from 'ee-log';
 
 
-section('ClassAnalyzer', (section) => {
+section('Class Analyzer', (section) => {
     section.test('Parse classes: class declaration', async () => {
         const currentDir = path.dirname(new URL(import.meta.url).pathname);
         const analyzer = new BaseAnalyzer();
@@ -26,7 +26,7 @@ section('ClassAnalyzer', (section) => {
         assert.equal(cls.name, 'Test');
         assert.equal(cls.hasComment , true);
         assert.equal(cls.description, 'test class');
-        assert.equal(cls.private, true);
+        assert.equal(cls.isPrivate, true);
     });
 
 
@@ -37,7 +37,7 @@ section('ClassAnalyzer', (section) => {
         const source = await analyzer.loadSource(path.join(currentDir, 'data/ClassExpression.mjs'));
         const ast = await analyzer.parseSource(source, true);
         const fileAnalyzer = new FileAnalyzer();
-        
+
         const classes = await fileAnalyzer.analyzeClasses(ast);
         assert(classes);
         assert.equal(classes.length, 1);
@@ -50,6 +50,6 @@ section('ClassAnalyzer', (section) => {
         assert.equal(cls.name, 'Test');
         assert.equal(cls.hasComment , true);
         assert.equal(cls.description, 'test class');
-        assert.equal(cls.private, true);
+        assert.equal(cls.isPrivate, true);
     });
 });

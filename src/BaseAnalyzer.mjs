@@ -139,7 +139,7 @@ export default class BaseAnalyzer {
                 const subAst = ast[key];
 
                 if (Array.isArray(subAst) || typeof subAst === 'object' && subAst !== null && subAst.type) {
-                    if (!Array.isArray(subAst)) subAst.getParent = () => ast;
+                    subAst.getParent = () => ast;
                     this.addParentAccssorToAST(subAst);
                 }
             }
