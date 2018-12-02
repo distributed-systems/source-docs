@@ -149,6 +149,9 @@ export default class FunctionAnalyzer extends BaseAnalyzer {
             // arrays are nested, the others not
             if (tag.type.type === 'TypeApplication') {
                 type = tag.type.expression;
+            } else if (tag.type.type === 'AllLiteral') {
+                type = tag.type;
+                type.name = '*';
             } else {
                 type = tag.type;
             }
@@ -203,13 +206,11 @@ export default class FunctionAnalyzer extends BaseAnalyzer {
             }
 
 
-            // make the loop skip the sub tags
+            // parse subtags & make the loop skip the sub tags
             if (subTags.length) {
+                currentParam.properties = this.parseCommentParameterTags(subTags, tag.name);
                 i += subTags.length;
             }
-
-            // parse sub tags
-            currentParam.properties = this.parseCommentParameterTags(subTags, tag.name);
         }
 
         return params;

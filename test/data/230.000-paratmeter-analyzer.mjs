@@ -54,7 +54,7 @@ export default class ParameterAnalyzerTest {
      * xxx
      *
      * @param      {Object}  arg1    options object
-     * @param      {sting}   arg1.a  string option
+     * @param      {string}   arg1.a  string option
      * @param      {number}  arg1.b  number option
      */
     fancyObjectParameter({
@@ -69,7 +69,7 @@ export default class ParameterAnalyzerTest {
     /**
      * xxx
      *
-     * @param      {Object}  arg1    options objec
+     * @param      {Object}  arg1    options object
      * @param      {*}       arg1.a  random param
      * @param      {number}  arg1.b  number param
      */
@@ -88,7 +88,7 @@ export default class ParameterAnalyzerTest {
     /**
      * strange stuff
      *
-     * @param      {Object}  arg1    options objeczt
+     * @param      {Object}  arg1    options object
      * @param      {*}       arg1.x  whatever
      */
     strangeObjectParameter({
@@ -105,28 +105,13 @@ export default class ParameterAnalyzerTest {
     /**
      * comments
      *
-     * @param      {number}    a                    number comment
-     * @param      {string}    b                    string comment
-     * @param      {boolean}   c                    boolean comment
-     * @param      {date}      d                    date comment
-     * @param      {object}    e                    object comment
-     * @param      {Object[]}  g                    array containing objects
-     * @param      {number}    g.id                 item id
-     * @param      {Object}    options              options object
-     * @param      {number}    options.x            x option
-     * @param      {boolean}   options.y            y object option
-     * @param      {array}     t                    t array
      * @param      {Object[]}  r                    array containing objects
      * @param      {Object[]}  r.employees          employee sub-array
      * @param      {number}    r.employees.id       employee id
      * @param      {Object}    r.company            company object
      * @param      {number}    r.company.id         company id
-     * @param      {array}     rest                 array containing other things
      */
-    comments(a, b, c, d, e, g = [], {
-        x = 1,
-        y = true
-    } = {}, t = [], r, ...rest) {
+    comments(r) {
 
     }
 }
