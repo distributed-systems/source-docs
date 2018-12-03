@@ -1,4 +1,4 @@
-import BaseAnalyzer from '../BaseAnalyzer.mjs';
+import BaseAnalyzer from './BaseAnalyzer.mjs';
 import ProjectDocumentation from '../documentation/ProjectDocumentation.mjs';
 import ScriptAnalyzer from './ScriptAnalyzer.mjs';
 import ModuleAnalyzer from './ModuleAnalyzer.mjs';
@@ -31,18 +31,6 @@ export default class ProjectAnalyzer extends BaseAnalyzer {
 
 
 
-    /**
-     * returns the documentation part
-     *
-     * @return     {Object}  The documentation.
-     */
-    getDocumentation() {
-        return this.documentation;
-    }
-
-
-
-
 
     /**
      * analyze the source files in the directory specified by the glob patterns
@@ -69,7 +57,7 @@ export default class ProjectAnalyzer extends BaseAnalyzer {
         });
 
 
-        // analyze all files left
+        // analyze all files
         await Promise.all(files.map(async (file) => {
             const source = await this.loadSource(file);
             const sourceType = await this.getSourceType(file, source);
@@ -84,12 +72,14 @@ export default class ProjectAnalyzer extends BaseAnalyzer {
             } else if (sourceType === 'script') {
                 analyzer = new ScriptAnalyzer(options);
             } else {
-                throw new Error(`Cannot analyze source fiel ${file}: unkwnown source type ${sourceType}!`);
+                throw new Error(`Cannot analyze source file ${file}: unkwnown source type ${sourceType}!`);
             }
 
-            await analyzer.analyze(file, source);
+            const docs = await analyzer.analyze(file, source);
+            this.documentation.addFile(docs);
         }));
 
-        return this.documentation;
+
+        return this.getDocumentation();
     }
 }

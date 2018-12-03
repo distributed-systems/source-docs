@@ -1,2 +1,2 @@
-import SourceAnalyzer from './src/SourceAnalyzer.mjs';
+import SourceAnalyzer from './src/SourceDocs.mjs';
 export default SourceAnalyzer;

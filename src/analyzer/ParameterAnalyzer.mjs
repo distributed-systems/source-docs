@@ -1,4 +1,4 @@
-import BaseAnalyzer from '../BaseAnalyzer.mjs'
+import BaseAnalyzer from './BaseAnalyzer.mjs'
 import ParameterDocumentation from '../documentation/ParameterDocumentation.mjs';
 import log from 'ee-log';
 
@@ -18,12 +18,6 @@ export default class ParameterAnalyzer extends BaseAnalyzer {
 
 
 
-    getDocumentation() {
-        return this.documentation;
-    }
-
-
-
 
     async analyze(ast, comment) {
         const docs = this.getDocumentation();
@@ -36,14 +30,27 @@ export default class ParameterAnalyzer extends BaseAnalyzer {
         } else if (ast.type === 'AssignmentPattern') {
             docs.hasDefaultValue = true;
             if (ast.left.type === 'ObjectPattern') {
-                this.parseObjectPattern(docs, ast);
+                if (ast.left) {
+                    this.parseObjectPattern(docs, ast);
+                } else if (ast.properties) {
+                    docs.name = '<Object>';
+                    docs.type = 'parameter';
+                    docs.properties = this.parseObjectExpression(ast.properties);
+                }
+                
             } else {
                 docs.name = ast.left.name;
                 docs.type = 'parameter';
                 docs.defaultValue = this.parseValue(ast.right);
             }
         } else if (ast.type === 'ObjectPattern') {
-            this.parseObjectPattern(docs, ast);
+            if (ast.left) {
+                this.parseObjectPattern(docs, ast);
+            } else if (ast.properties) {
+                docs.name = '<Object>';
+                docs.type = 'parameter';
+                docs.properties = this.parseObjectExpression(ast.properties);
+            }
         } else {
             docs.name = ast.name;
             docs.type = 'parameter';
@@ -52,6 +59,8 @@ export default class ParameterAnalyzer extends BaseAnalyzer {
 
         return this.getDocumentation();
     }
+
+
 
 
 
@@ -85,42 +94,4 @@ export default class ParameterAnalyzer extends BaseAnalyzer {
             docs.defaultValue = this.parseObjectExpression(ast.right.properties);
         }
     }
-
-
-
-
-
-
-    parseObjectExpression(properties) {
-        const obj = {};
-
-        properties.forEach((property) => {
-            const identifier = property.key && property.key.name;
-            const value = this.parseValue(property.value);
-            obj[identifier] = value;
-        });
-
-        return obj;
-    }
-
-
-
-    parseValue(ast) {
-        let value;
-
-        if (ast.type === 'Literal') {
-            value = ast.value;
-        } else if (ast.type === 'Identifier') {
-            value = `<Variable ${ast.name}>`;
-        } else if (ast.type === 'ObjectExpression') {
-            value = this.parseObjectExpression(ast.properties);
-        } else if (ast.type === 'MemberExpression') {
-            if (ast.object.type === 'ThisExpression') {
-                value = `<Property this.${ast.property.name}>`;
-            }    
-        }
-
-        return value;
-    }
-
 }

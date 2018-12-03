@@ -13,9 +13,11 @@ export default class ScriptAnalyzer extends FileAnalyzer {
         projectAnalyzer,
     }) {
         super();
-        
+        this.documentation = new ModuletDocumentation();
         this.projectAnalyzer = projectAnalyzer;
     }
+
+
 
 
 
@@ -24,11 +26,22 @@ export default class ScriptAnalyzer extends FileAnalyzer {
         const ast = await this.parseSource(source, true);
         const dependencies = await this.getImportDeclarations(ast, file);
 
+
         // analyze all dependencies
         await this.projectAnalyzer.analyze(dependencies.map(dependency => dependency.path));
 
-        // find all classes
+        // extract classes
         const classes = await this.analyzeClasses(ast);
+        const exportsDeclarations = await this.getExportDeclarations(ast);
+
+        const docs = this.getDocumentation();
+
+        docs.file = file;
+        docs.classes = classes;
+        docs.dependencies = dependencies;
+        dosc.exports = exportsDeclarations;
+
+        return this.getDocumentation();
     }
 
 
@@ -47,6 +60,36 @@ export default class ScriptAnalyzer extends FileAnalyzer {
         const importDeclarations = this.findAllNodes(ast, 'ImportDeclaration');
 
         for (const declaration of importDeclarations) {
+            for (const specifier of declaration.specifiers) {
+                dependencies.push({
+                    name: specifier.local.name,
+                    file: declaration.source.value,
+                    path: path.join(path.dirname(parentFile), declaration.source.value),
+                    isDefault: specifier.type === 'ImportDefaultSpecifier',
+                });
+            }
+        }
+
+        return dependencies;
+    }
+
+
+
+
+
+
+    /**
+     * extract all export statements, normalize them
+     *
+     * @param      {Object}        ast     The ast
+     */
+    async getExportDeclarations(ast) {log(ast);
+        const dependencies = [];
+        const exportDeclarations = this.findAllNodes(ast, 'ExportDefaultDeclaration');
+
+        log(exportDeclarations);
+
+        for (const declaration of exportDeclarations) {
             for (const specifier of declaration.specifiers) {
                 dependencies.push({
                     name: specifier.local.name,

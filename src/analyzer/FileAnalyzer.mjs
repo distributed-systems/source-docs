@@ -1,4 +1,4 @@
-import BaseAnalyzer from '../BaseAnalyzer.mjs';
+import BaseAnalyzer from './BaseAnalyzer.mjs';
 import ClassAnalyzer from './ClassAnalyzer.mjs';
 import log from 'ee-log';
 import path from 'path';

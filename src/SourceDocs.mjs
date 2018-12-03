@@ -1,4 +1,4 @@
-import BaseAnalyzer from './BaseAnalyzer.mjs';
+import BaseAnalyzer from './analyzer/BaseAnalyzer.mjs';
 import glob from '../es-modules/distributed-systems/glob/1.0.0+/src/glob.mjs'
 import ProjectAnalyzer from './analyzer/ProjectAnalyzer.mjs';
 
@@ -53,6 +53,6 @@ export default class SourceAnalyzer extends BaseAnalyzer {
             exclude: this.exclude,
         });
 
-        //return analyzer.analyze(files);
+        return analyzer.analyze(files);
     }
 }

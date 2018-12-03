@@ -1,5 +1,5 @@
 import FunctionAnalyzer from './FunctionAnalyzer.mjs';
-import BaseAnalyzer from '../BaseAnalyzer.mjs'
+import BaseAnalyzer from './BaseAnalyzer.mjs'
 import ClassDocumentation from '../documentation/ClassDocumentation.mjs';
 import log from 'ee-log';
 
@@ -19,11 +19,6 @@ export default class ClassAnalyzer extends BaseAnalyzer {
 
 
 
-    getDocumentation() {
-        return this.documentation;
-    }
-
-
 
 
 
@@ -36,7 +31,7 @@ export default class ClassAnalyzer extends BaseAnalyzer {
         if (ast.id) this.documentation.name = ast.id.name;
         else if (ast.getParent().id) this.documentation.name = ast.getParent().id.name;
 
-        
+
         if (ast.superClass && ast.superClass.name) this.documentation.superClass = ast.superClass.name;
 
 
@@ -55,5 +50,8 @@ export default class ClassAnalyzer extends BaseAnalyzer {
             const methodDocumentation = await analyzer.analyze(methodAst);
             this.getDocumentation().methods.push(methodDocumentation); 
         }));
+
+
+        this.getDocumentation().sortMethods();        
     }
 }

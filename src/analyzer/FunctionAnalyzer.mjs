@@ -1,6 +1,7 @@
-import ParameterAnalyzer from './ParameterAnalyzer.mjs';
-import BaseAnalyzer from '../BaseAnalyzer.mjs'
+import BaseAnalyzer from './BaseAnalyzer.mjs'
 import FunctionDocumentation from '../documentation/FunctionDocumentation.mjs';
+import ParameterAnalyzer from './ParameterAnalyzer.mjs';
+import types from '../../es-modules/distributed-systems/types/1.0.0+/types.mjs';
 import log from 'ee-log';
 
 
@@ -14,14 +15,6 @@ export default class FunctionAnalyzer extends BaseAnalyzer {
         super(options);
 
         this.documentation = new FunctionDocumentation();
-    }
-
-
-
-
-
-    getDocumentation() {
-        return this.documentation;
     }
 
 
@@ -101,8 +94,105 @@ export default class FunctionAnalyzer extends BaseAnalyzer {
         }
 
 
+
+        // get return value
+        const returnValue = this.getReturnValue(ast);
+        if (returnValue) {
+            this.documentation.returnValue = returnValue.value;
+            this.documentation.returnValueType = returnValue.type;
+        }
+
         return this.getDocumentation();
     }
+
+
+
+
+
+    /**
+     * extract the return type
+     *
+     * @param      {object}  ast     ast
+     */
+    getReturnValue(ast) {
+        const returnStatement = this.findFirstNodeOfType(ast, 'ReturnStatement');
+
+        if (returnStatement && returnStatement.argument) {
+            const arg = returnStatement.argument;
+
+            if (arg.type === 'Literal') {
+                return {
+                    type: types(arg.value),
+                    value: arg.value,
+                };
+            } else if (arg.type === 'Identifier') {
+                const value = this.getVariableValue(ast, arg.name);
+
+                if (value) {
+                    return {
+                        type: types(value),
+                        value: value,
+                    };
+                }
+            } else if (arg.type === 'ObjectExpression') {
+                const value = this.parseObjectExpression(arg.properties);
+
+                if (value) {
+                    return {
+                        type: types(value),
+                        value: value,
+                    };
+                }
+            } else if (arg.type === 'ArrayExpression') {
+                // don't resolve the arrays value, it's not used by the dependencies
+                // this library is written for ...
+                return {
+                    type: types([]),
+                    value: [],
+                };
+            }
+        }
+    }
+
+
+
+
+    /**
+     * guess the value of a variable that is returned
+     *
+     * @param      {<type>}  ast           The ast
+     * @param      {<type>}  variableName  The variable name
+     * @return     {<type>}  The variable value.
+     */
+    getVariableValue(ast, variableName) {
+
+        // lets try and find a variable assignment for the variable 
+        const assignmentNodes = this.findAllNodes(ast, 'AssignmentExpression').reverse();
+        for (const node of assignmentNodes) {
+            if (node.left.type === 'Identifier' && 
+                node.left.name === variableName) {
+                if (node.right.type === 'Literal') return node.right.value;
+                else if (node.right.type === 'ObjectExpression') {
+                    const value = this.parseObjectExpression(node.right.properties);
+                    if (value) return value;
+                }
+            }
+        }
+
+        const declaratorNodes = this.findAllNodes(ast, 'VariableDeclarator').reverse();
+        for (const node of declaratorNodes) {
+            if (node.id.type === 'Identifier' && 
+                node.id.name === variableName) {
+                if (node.init.type === 'Literal') return node.init.value;
+                else if (node.init.type === 'ObjectExpression') {
+                    const value = this.parseObjectExpression(node.init.properties);
+                    if (value) return value;
+                }
+            }
+        }
+    }
+
+
 
 
 

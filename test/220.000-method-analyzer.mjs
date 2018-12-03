@@ -1,6 +1,6 @@
 import section from '../es-modules/distributed-systems/section-tests/1.0.0+/index.mjs';
 import FileAnalyzer from '../src/analyzer/FileAnalyzer.mjs';
-import BaseAnalyzer from '../src/BaseAnalyzer.mjs';
+import BaseAnalyzer from '../src/analyzer/BaseAnalyzer.mjs';
 import assert from 'assert';
 import path from 'path';
 import log from 'ee-log';
@@ -59,5 +59,145 @@ section('Method Analyzer', (section) => {
         assert.equal(m2.superIsCalled, false);
         assert.equal(m2.isMethod, true);
         assert.equal(m2.name, 'staticMethod');
+    });
+
+
+
+    section.test('return value: literal', async () => {
+        const currentDir = path.dirname(new URL(import.meta.url).pathname);
+        const analyzer = new BaseAnalyzer();
+        const source = await analyzer.loadSource(path.join(currentDir, 'data/220.000-method-analyzer-returns.mjs'));
+        const ast = await analyzer.parseSource(source, true);
+        const fileAnalyzer = new FileAnalyzer();
+
+        const classes = await fileAnalyzer.analyzeClasses(ast);
+        assert(classes);
+        assert.equal(classes.length, 1);
+
+        const cls = classes[0];
+        const method = cls.methods[0];
+
+        assert.equal(method.returnValue, 1);
+        assert.equal(method.returnValueType, 'number');
+    });
+
+
+
+    section.test('return value: declaration', async () => {
+        const currentDir = path.dirname(new URL(import.meta.url).pathname);
+        const analyzer = new BaseAnalyzer();
+        const source = await analyzer.loadSource(path.join(currentDir, 'data/220.000-method-analyzer-returns.mjs'));
+        const ast = await analyzer.parseSource(source, true);
+        const fileAnalyzer = new FileAnalyzer();
+
+        const classes = await fileAnalyzer.analyzeClasses(ast);
+        assert(classes);
+        assert.equal(classes.length, 1);
+
+        const cls = classes[0];
+        const method = cls.methods[1];
+
+        assert.equal(method.returnValue, 1);
+        assert.equal(method.returnValueType, 'number');
+    });
+
+
+
+    section.test('return value: declaration', async () => {
+        const currentDir = path.dirname(new URL(import.meta.url).pathname);
+        const analyzer = new BaseAnalyzer();
+        const source = await analyzer.loadSource(path.join(currentDir, 'data/220.000-method-analyzer-returns.mjs'));
+        const ast = await analyzer.parseSource(source, true);
+        const fileAnalyzer = new FileAnalyzer();
+
+        const classes = await fileAnalyzer.analyzeClasses(ast);
+        assert(classes);
+        assert.equal(classes.length, 1);
+
+        const cls = classes[0];
+        const method = cls.methods[2];
+
+        assert.equal(method.returnValue, 'str');
+        assert.equal(method.returnValueType, 'string');
+    });
+
+
+
+    section.test('return value: assignment', async () => {
+        const currentDir = path.dirname(new URL(import.meta.url).pathname);
+        const analyzer = new BaseAnalyzer();
+        const source = await analyzer.loadSource(path.join(currentDir, 'data/220.000-method-analyzer-returns.mjs'));
+        const ast = await analyzer.parseSource(source, true);
+        const fileAnalyzer = new FileAnalyzer();
+
+        const classes = await fileAnalyzer.analyzeClasses(ast);
+        assert(classes);
+        assert.equal(classes.length, 1);
+
+        const cls = classes[0];
+        const method = cls.methods[4];
+
+        assert.equal(method.returnValue, 1);
+        assert.equal(method.returnValueType, 'number');
+    });
+
+
+
+    section.test('return value: object expression', async () => {
+        const currentDir = path.dirname(new URL(import.meta.url).pathname);
+        const analyzer = new BaseAnalyzer();
+        const source = await analyzer.loadSource(path.join(currentDir, 'data/220.000-method-analyzer-returns.mjs'));
+        const ast = await analyzer.parseSource(source, true);
+        const fileAnalyzer = new FileAnalyzer();
+
+        const classes = await fileAnalyzer.analyzeClasses(ast);
+        assert(classes);
+        assert.equal(classes.length, 1);
+
+        const cls = classes[0];
+        const method = cls.methods[5];
+
+        assert.deepStrictEqual(method.returnValue, {a: 1});
+        assert.equal(method.returnValueType, 'object');
+    });
+
+
+
+    section.test('return value: object assignment', async () => {
+        const currentDir = path.dirname(new URL(import.meta.url).pathname);
+        const analyzer = new BaseAnalyzer();
+        const source = await analyzer.loadSource(path.join(currentDir, 'data/220.000-method-analyzer-returns.mjs'));
+        const ast = await analyzer.parseSource(source, true);
+        const fileAnalyzer = new FileAnalyzer();
+
+        const classes = await fileAnalyzer.analyzeClasses(ast);
+        assert(classes);
+        assert.equal(classes.length, 1);
+
+        const cls = classes[0];
+        const method = cls.methods[6];
+
+        assert.deepStrictEqual(method.returnValue, {a: 1});
+        assert.equal(method.returnValueType, 'object');
+    });
+
+
+
+    section.test('return value: array expression', async () => {
+        const currentDir = path.dirname(new URL(import.meta.url).pathname);
+        const analyzer = new BaseAnalyzer();
+        const source = await analyzer.loadSource(path.join(currentDir, 'data/220.000-method-analyzer-returns.mjs'));
+        const ast = await analyzer.parseSource(source, true);
+        const fileAnalyzer = new FileAnalyzer();
+
+        const classes = await fileAnalyzer.analyzeClasses(ast);
+        assert(classes);
+        assert.equal(classes.length, 1);
+
+        const cls = classes[0];
+        const method = cls.methods[7];
+
+        assert.deepStrictEqual(method.returnValue, []);
+        assert.equal(method.returnValueType, 'array');
     });
 });

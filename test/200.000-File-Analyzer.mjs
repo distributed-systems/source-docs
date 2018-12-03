@@ -1,6 +1,6 @@
 import section from '../es-modules/distributed-systems/section-tests/1.0.0+/index.mjs';
 import FileAnalyzer from '../src/analyzer/FileAnalyzer.mjs';
-import BaseAnalyzer from '../src/BaseAnalyzer.mjs';
+import BaseAnalyzer from '../src/analyzer/BaseAnalyzer.mjs';
 import assert from 'assert';
 import path from 'path';
 import log from 'ee-log';
@@ -22,6 +22,7 @@ section('File Analyzer', (section) => {
         assert(classes);
         assert.equal(classes.length, 1);
     });
+    
 
     section.test('Parse classes: class expression', async () => {
         const currentDir = path.dirname(new URL(import.meta.url).pathname);

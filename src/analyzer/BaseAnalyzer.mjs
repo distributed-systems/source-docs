@@ -1,6 +1,6 @@
 import fs from 'fs';
-import { parse } from './lib/acorn/dist/acorn.mjs';
-import doctrine from './lib/doctrine';
+import { parse } from '../lib/acorn/dist/acorn.mjs';
+import doctrine from '../lib/doctrine';
 
 
 const { promises: { readFile, stat } } = fs;
@@ -11,6 +11,18 @@ const { promises: { readFile, stat } } = fs;
 export default class BaseAnalyzer {
 
 
+
+    /**
+     * returns the documentation part
+     *
+     * @return     {Object}  The documentation.
+     */
+    getDocumentation() {
+        return this.documentation;
+    }
+
+
+    
 
 
     /**
@@ -295,5 +307,45 @@ export default class BaseAnalyzer {
         } else {
             throw new Error(`Failed to load source file ${file}: file is not a regular file!`);
         }
+    }
+
+
+
+
+
+
+
+    parseObjectExpression(properties) {
+        const obj = {};
+
+        properties.forEach((property) => {
+            const identifier = property.key && property.key.name;
+            const value = this.parseValue(property.value);
+            obj[identifier] = value;
+        });
+
+        return obj;
+    }
+
+
+
+    parseValue(ast) {
+        let value;
+
+        if (ast.type === 'Literal') {
+            value = ast.value;
+        } else if (ast.type === 'Identifier') {
+            value = `<Variable ${ast.name}>`;
+        } else if (ast.type === 'ObjectExpression') {
+            value = this.parseObjectExpression(ast.properties);
+        } else if (ast.type === 'MemberExpression') {
+            if (ast.object.type === 'ThisExpression') {
+                value = `<Property this.${ast.property.name}>`;
+            }    
+        } else if (ast.type === 'AssignmentPattern') {
+            return this.parseValue(ast.right);
+        }
+
+        return value;
     }
 }
