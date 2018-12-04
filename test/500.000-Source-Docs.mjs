@@ -18,6 +18,6 @@ section('Source Docs', (section) => {
         
         const documentation = await analyzer.analyze(currentDir, 'data/*.mjs');
 
-        log(documentation);
+        //log(documentation);
     });
 });
