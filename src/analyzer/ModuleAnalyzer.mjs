@@ -24,22 +24,22 @@ export default class ScriptAnalyzer extends FileAnalyzer {
 
     async analyze(file, source) {
         const ast = await this.parseSource(source, true);
-        const dependencies = await this.getImportDeclarations(ast, file);
+        const imports = await this.getImportDeclarations(ast, file);
 
 
         // analyze all dependencies
-        await this.projectAnalyzer.analyze(dependencies.map(dependency => dependency.path));
+        await this.projectAnalyzer.analyze(imports.map(dependency => dependency.path));
 
         // extract classes
         const classes = await this.analyzeClasses(ast);
-        //const exportsDeclarations = await this.getExportDeclarations(ast);
+        const exportsDeclarations = await this.getExportDeclarations(ast, file);
 
         const docs = this.getDocumentation();
 
         docs.file = file;
         docs.classes = classes;
-        docs.dependencies = dependencies;
-        //dosc.exports = exportsDeclarations;
+        docs.imports = imports;
+        docs.exports = exportsDeclarations;
 
         return this.getDocumentation();
     }
@@ -63,7 +63,7 @@ export default class ScriptAnalyzer extends FileAnalyzer {
             for (const specifier of declaration.specifiers) {
                 dependencies.push({
                     name: specifier.local.name,
-                    file: declaration.source.value,
+                    source: declaration.source.value,
                     path: path.join(path.dirname(parentFile), declaration.source.value),
                     isDefault: specifier.type === 'ImportDefaultSpecifier',
                 });
@@ -83,7 +83,7 @@ export default class ScriptAnalyzer extends FileAnalyzer {
      *
      * @param      {Object}        ast     The ast
      */
-    async getExportDeclarations(ast) {//log(ast);
+    async getExportDeclarations(ast, parentFile) {//log(ast);
         const exportedNames = [];
         const exportDefinitions = [];
 
@@ -148,7 +148,14 @@ export default class ScriptAnalyzer extends FileAnalyzer {
             }
         }
 
-        log(exportDefinitions);
+
+
+        for (const exportDefinition of exportDefinitions) {
+            if (exportDefinition.source) {
+                exportDefinition.path = path.join(parentFile, exportDefinition.source);
+            }
+        }
+
 
         return exportDefinitions;
     }
