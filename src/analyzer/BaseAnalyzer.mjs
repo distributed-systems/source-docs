@@ -28,11 +28,12 @@ export default class BaseAnalyzer {
     /**
      * find al nodes of a certain type
      *
-     * @param      {object}  ast       The ast
-     * @param      {string}  nodeType  the type of node to find
-     * @return     {Array}   array
+     * @param      {object}   ast              The ast
+     * @param      {string}   nodeTypes        the type of node to find
+     * @param      {boolean}  includeSubNodes  search inside matching nodes
+     * @return     {Array}    array
      */
-    findAllNodes(ast, nodeType) {
+    findAllNodes(ast, nodeType, includeSubNodes = true) {
         const nodes = [];
 
         if (Array.isArray(ast)) {
@@ -42,7 +43,9 @@ export default class BaseAnalyzer {
         } else if (typeof ast === 'object' && ast !== null) {
             if (ast.type === nodeType) {
                 nodes.push(ast);
-            } else {
+            } 
+
+            if (ast.type !== nodeType || includeSubNodes) {
                 Object.keys(ast).forEach((key) => {
                     const subAst = ast[key];
 

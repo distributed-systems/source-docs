@@ -81,9 +81,11 @@ export default class ScriptAnalyzer extends FileAnalyzer {
     /**
      * extract all export statements, normalize them
      *
-     * @param      {Object}        ast     The ast
+     * @param      {Object}   ast         The ast
+     * @param      {string}   parentFile  The parent file
+     * @return     {Promise}  The export declarations.
      */
-    async getExportDeclarations(ast, parentFile) {//log(ast);
+    async getExportDeclarations(ast, parentFile) {
         const exportedNames = [];
         const exportDefinitions = [];
 
@@ -98,7 +100,7 @@ export default class ScriptAnalyzer extends FileAnalyzer {
                                 exportDefinitions.push({
                                     name: specifier.local.name,
                                     source: declaration.source && declaration.source.type === 'Literal' ? declaration.source.value : null,
-                                    default: true,
+                                    isDefault: true,
                                 });
                             } else {
                                 exportedNames.push(specifier.local.name);
@@ -141,7 +143,7 @@ export default class ScriptAnalyzer extends FileAnalyzer {
 
 
         for (const name of exportedNames) {
-            const result = this.findExportTypeByName(ast, name);
+            const result = this.findExportTypeByName(ast, name); 
 
             if (result) {
                 exportDefinitions.push(result);
@@ -152,51 +154,11 @@ export default class ScriptAnalyzer extends FileAnalyzer {
 
         for (const exportDefinition of exportDefinitions) {
             if (exportDefinition.source) {
-                exportDefinition.path = path.join(parentFile, exportDefinition.source);
+                exportDefinition.path = path.join(path.dirname(parentFile), exportDefinition.source);
             }
         }
 
 
         return exportDefinitions;
-    }
-
-
-
-
-
-    findExportTypeByName(ast, name) {
-        const identifiers = this.findAllNodes(ast, 'Identifier')
-            .filter(node => node.name === name)
-            .reverse();
-
-
-        for (const identifier of identifiers) {
-            if (identifier.getParent) {
-                const parent = identifier.getParent();
-
-                if (parent.type === 'VariableDeclarator') {
-                    return {
-                        type: 'variable',
-                        name,
-                    };
-                } else if (parent.type === 'ClassDeclaration') {
-                    return {
-                        type: 'class',
-                        name,
-                    };
-                } else if (parent.type === 'FunctionDeclaration') {
-                    return {
-                        type: 'function',
-                        name,
-                    };
-                } else if (parent.type === 'ImportDefaultSpecifier' || parent.type === 'ImportSpecifier') {
-                    return {
-                        source: parent.getParent().getParent().source.value,
-                        name,
-                        default: parent.type === 'ImportDefaultSpecifier',
-                    };
-                }
-            }
-        }
     }
 }

@@ -17,7 +17,6 @@ section('Module', (section) => {
         const exports = await moduleAnalyzer.getExportDeclarations(ast, path.join(currentDir, 'data/240.000-export-declarations.mjs'));
         let ex;
         
-
         assert.equal(exports.length, 12);
 
         ex = exports[0];
@@ -38,8 +37,8 @@ section('Module', (section) => {
 
         ex = exports[4];
         assert.equal(ex.name, 'DirectDefaultImport');
-        assert.equal(ex.source, './240.000-export-dummy.mjs');
-        assert.equal(ex.default, true);
+        assert.equal(ex.source, './240.000-export-dummy.mjs');  
+        assert.equal(ex.isDefault, true);
 
         ex = exports[5];
         assert.equal(ex.name, 'AClass');
@@ -47,7 +46,7 @@ section('Module', (section) => {
 
         ex = exports[6];
         assert.equal(ex.name, 'functionN');
-        assert.equal(ex.type, 'variable');
+        assert.equal(ex.type, 'function');
 
         ex = exports[7];
         assert.equal(ex.name, 'constX');
@@ -56,12 +55,12 @@ section('Module', (section) => {
         ex = exports[8];
         assert.equal(ex.name, 'DefaultImport');
         assert.equal(ex.source, './240.000-export-dummy.mjs');
-        assert.equal(ex.default, true);
+        assert.equal(ex.isDefault, true);
 
         ex = exports[9];
         assert.equal(ex.name, 'OtherCls');
         assert.equal(ex.source, './240.000-export-dummy.mjs');
-        assert.equal(ex.default, false);
+        assert.equal(ex.isDefault, false);
 
         ex = exports[10];
         assert.equal(ex.name, 'obj');

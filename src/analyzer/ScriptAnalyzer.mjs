@@ -77,4 +77,105 @@ export default class ScriptAnalyzer extends FileAnalyzer {
 
         return imports;
     }
+
+
+
+    /**
+     * get the exports, theirs names, if they're default
+     *
+     * @param      {<type>}   ast         The ast
+     * @param      {<type>}   parentFile  The parent file
+     * @return     {Promise}  The export declarations.
+     */
+    async getExportDeclarations(ast, parentFile) {
+        const exportDefinitions = [];
+
+        const memberExpressions = this.findAllNodes(ast, 'MemberExpression').filter((expression) => {
+            return expression.object && 
+                expression.object.name === 'module' &&
+                expression.property &&
+                expression.property.name === 'exports';
+        });
+
+
+
+        for (const expression of memberExpressions) {
+            const right = expression.getParent().right || expression.getParent().getParent().right;
+            let name;
+
+            // named non default exports
+            if (expression.getParent().property) {
+                name = expression.getParent().property.name;
+            }
+
+
+            if (right.type === 'Literal' || right.type === 'ObjectExpression') {
+                const definition = {
+                    isDefault: !name,
+                    type: 'variable',
+                };
+
+                if (name) definition.name = name;
+                exportDefinitions.push(definition);
+            } else if (right.type === 'Identifier') {
+                const result = this.findExportTypeByName(ast, name || right.name, right.start);
+
+                if (result) {
+                    result.isDefault = !name;
+                    exportDefinitions.push(result);
+                }
+            } else if (right.type === 'ClassExpression') {
+                const definition = {
+                    isDefault: !name,
+                    type: 'class',
+                };
+
+                if (name) {
+                    definition.name = name;
+                } else if (right.id) {
+                    definition.name = right.id.name;
+                }
+
+                exportDefinitions.push(definition);
+            } else if (right.type === 'ObjectExpression') {
+                const definition = {
+                    isDefault: !name,
+                    type: 'variable',
+                };
+
+                if (name) {
+                    definition.name = name;
+                } else if (right.id) {
+                    definition.name = right.id.name;
+                }
+
+                exportDefinitions.push(definition);
+            } else if (right.type === 'CallExpression' && right.callee && right.callee.name === 'require') {
+                const definition = {
+                    isDefault: !name,
+                };
+
+                if (name) {
+                    definition.name = name;
+                }
+
+                if (right.arguments && right.arguments.length && right.arguments[0].type === 'Literal') {
+                    definition.source = right.arguments[0].value;
+                }
+
+                exportDefinitions.push(definition);
+            }
+        }
+
+
+
+        for (const exportDefinition of exportDefinitions) {
+            if (exportDefinition.source) {
+                exportDefinition.path = path.join(path.dirname(parentFile), exportDefinition.source);
+            }
+        }
+
+
+        return exportDefinitions;
+    }
 }
